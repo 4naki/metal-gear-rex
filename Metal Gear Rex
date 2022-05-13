@@ -293,8 +293,8 @@ if (first()) {
     #Update check code
     
     #ifdef httpRequest(string)
-        Link = ""
-        VersionCheckLink = ""
+        Link = "https://github.com/4naki/metal-gear-rex/blob/main/Metal%20Gear%20Rex"
+        VersionCheckLink = "https://raw.githubusercontent.com/4naki/metal-gear-rex/main/Version"
         Version = "1.0"
         
         runOnHTTP(1)
