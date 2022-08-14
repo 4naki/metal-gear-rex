@@ -513,7 +513,7 @@ if (first()) {
             Gun_Speed_Mod = 0
         }
     }
-    Gun_Speed_Mod += 0.1 * (Moving - Gun_Speed_Mod)
+    Gun_Speed_Mod += 0.06 * (Moving - Gun_Speed_Mod)
     
     Yaw += clamp(-Bearing, -Gun_Speed_Mod * 5, Gun_Speed_Mod * 5)
     if(90 < 180){
@@ -542,15 +542,15 @@ if (first()) {
             Gun_Speed_Mod_Left = 0
         }
     }
-    Gun_Speed_Mod_Left += 0.11 * (Moving_Left - Gun_Speed_Mod_Left)
+    Gun_Speed_Mod_Left += 0.04 * (Moving_Left - Gun_Speed_Mod_Left)
     
-    Yaw_Left += clamp(-Bearing_Left, -Gun_Speed_Mod_Left * 7.5, Gun_Speed_Mod_Left * 7.5)
+    Yaw_Left += clamp(-Bearing_Left, -Gun_Speed_Mod_Left * 8, Gun_Speed_Mod_Left * 8)
     if(35 < 180){
         Yaw_Left = clamp(Yaw_Left, -35, 35)
     }
     
     
-    Pitch_Left += clamp(-Elevation_Left, -Gun_Speed_Mod_Left * 7.5, Gun_Speed_Mod_Left * 7.5)
+    Pitch_Left += clamp(-Elevation_Left, -Gun_Speed_Mod_Left * 8, Gun_Speed_Mod_Left * 8)
     Pitch_Left = clamp(Pitch_Left, -35, 35)
     
     local Forward_Right = ((CamParent:pos()+CamAng3:forward()*100)-CamParent:pos()):toAngle():forward()
@@ -562,15 +562,15 @@ if (first()) {
             Gun_Speed_Mod_Right = 0
         }
     }
-    Gun_Speed_Mod_Right += 0.11 * (Moving_Right - Gun_Speed_Mod_Right)
+    Gun_Speed_Mod_Right += 0.04 * (Moving_Right - Gun_Speed_Mod_Right)
     
-    Yaw_Right += clamp(-Bearing_Right, -Gun_Speed_Mod_Right * 7.5, Gun_Speed_Mod_Right * 7.5)
+    Yaw_Right += clamp(-Bearing_Right, -Gun_Speed_Mod_Right * 8, Gun_Speed_Mod_Right * 8)
     if(35 < 180){
         Yaw_Right = clamp(Yaw_Right, -35, 35)
     }
     
     
-    Pitch_Right += clamp(-Elevation_Right, -Gun_Speed_Mod_Right * 7.5, Gun_Speed_Mod_Right * 7.5)
+    Pitch_Right += clamp(-Elevation_Right, -Gun_Speed_Mod_Right * 8, Gun_Speed_Mod_Right * 8)
     Pitch_Right = clamp(Pitch_Right, -35, 35)
     
     holoAng(25,holoEntity(20):toWorld(ang(Pitch_Left,Yaw_Left,0)))
