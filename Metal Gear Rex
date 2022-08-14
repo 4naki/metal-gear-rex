@@ -1,11 +1,11 @@
 @name Metal Gear Rex
-@inputs Base:entity Seat:entity CamAng:angle W2 S2 Shift2 Crouch2 CamAng2:angle
-@outputs CamPos:vector CamDistance Active Right_extend2 Left_extend2 StepZ2
+@inputs [Base Seat Head Jaw Bottom Cover Gun_Left Gun_Right]:entity CamAng:angle W2 S2 Shift2 Crouch2 Open2 CamAng2:angle
+@outputs CamPos:vector CamParent:entity CamDistance Active Right_extend2 Left_extend2 Fire1 Fire2 WeaponMode StepZ
 
 #-- legs bones
 @inputs [Thigh_R Thigh_L Knee_R Knee_L Leg_R Leg_L Foot_R Foot_L Ext_R Ext_L]:entity
 #-- core variables
-@persist [Time_delta Time_current] [Down Left]:vector [Ang]:angle Inertia:angle Mass CamPos:vector CamDistance Active A3 Editmode Duck
+@persist [Time_delta Time_current] [Down Left]:vector [Ang]:angle Inertia:angle Mass CamPos:vector CamDistance Active A3 Editmode Duck Open OpenVal Aim
 #-- mech variables
 @persist [Mech_height Mech_speed Mech_gait_time Mech_gait_transition Right_extend2 Left_extend2 Right_extend Left_extend Step] [Mech_pos Mech_vel Leg_Pos_Offset]:vector [Align]:angle [Mech_gaits]:table [Mech_gait_last Mech_gait_next Leg_Rotations]:array BonesVisible StepDistance StepDistanceRunReduceMult Base_Speed Run_Speed_Mult Crouch_Speed_Reduce_Mult Crouch_Run_Speed_Reduce_Mult Speed_Mult StepSound:string
 #-- feet variables
@@ -16,7 +16,13 @@
 @persist LengthA LengthB LengthC
 
 #-- cam stuff
-@persist ThirdPerson [ThirdPersonPos FirstPersonPos]:vector ThirdPersonDistance FirstPersonDistance
+@persist ThirdPerson [ThirdPersonPos FirstPersonPos]:vector ThirdPersonDistance FirstPersonDistance CamParent:entity
+
+#-- weapon stuff
+@persist WeaponMode Yaw Pitch Gun_Speed_Mod
+@persist Yaw_Left Pitch_Left Gun_Speed_Mod_Left
+@persist Yaw_Right Pitch_Right Gun_Speed_Mod_Right
+
 
 @trigger none
 #-- animation base by shadowscion
@@ -45,7 +51,7 @@ if (first()) {
     ThirdPersonPos = vec(0,-300,150)
     ThirdPersonDistance = 700
     
-    FirstPersonPos = vec(223,0,30)
+    FirstPersonPos = vec(0,4,33.5)
     FirstPersonDistance = 0
     
     #include "rex_ik_function"
@@ -53,7 +59,7 @@ if (first()) {
     #-- mech variables
     
     Thigh_Length = 160
-    Calf_Length = 75
+    Calf_Length = 80
     Knee_Length = 245
     
     Mech_height = 462
@@ -105,7 +111,7 @@ if (first()) {
     }
 
     #-- feet variables
-    Left_groundz = 35
+    Left_groundz = 48
     Right_groundz = Left_groundz
 
     Left_stepz = 0.2
@@ -286,6 +292,65 @@ if (first()) {
     holoAng(15,holoEntity(3):toWorld(ang(0,0,0)))
     holoAlpha(15,0)
     
+    holoCreate(20,Head:toWorld(vec(0,0,0)),vec(0),Head:toWorld(ang(0,0,0)),vec(255),"cube")
+    holoPos(20,Base:toWorld(vec(160.9,0,61.1)))
+    holoAng(20,Base:toWorld(ang(0,0,0)))
+    holoParent(20,Base)
+    
+    holoCreate(21,Head:toWorld(vec(0,0,0)),vec(0),Head:toWorld(ang(0,0,0)),vec(255),"cube")
+    holoPos(21,holoEntity(20):toWorld(vec(0,0,0)))
+    holoAng(21,holoEntity(20):toWorld(ang(0,0,0)))
+    holoParent(21,holoEntity(20))
+    
+    Head:setColor(vec(0,0,255))
+    holoCreate(22,Head:toWorld(vec(0,0,0)),vec(0),Head:toWorld(ang(0,0,0)),vec(255),"cube")
+    local Children=Head:children()
+    rangerFilter(Children)
+    Head:parentTo(holoEntity(22))
+    holoPos(22,holoEntity(21):toWorld(vec(0,15,0)))
+    holoAng(22,holoEntity(21):toWorld(ang(0,0,0)))
+    holoParent(22,holoEntity(21))
+    for(I=1,Children:count()){
+        Children[I,entity]:parentTo(Head)
+    }
+    
+    
+    Jaw:setColor(vec(0,255,0))
+    holoCreate(23,Jaw:toWorld(vec(0,0,0)),vec(0),Jaw:toWorld(ang(0,0,0)),vec(255),"cube")
+    local Children=Jaw:children()
+    rangerFilter(Children)
+    Jaw:parentTo(holoEntity(23))
+    holoPos(23,holoEntity(21):toWorld(vec(0,-15,0)))
+    holoAng(23,holoEntity(21):toWorld(ang(0,0,0)))
+    holoParent(23,holoEntity(21))
+    for(I=1,Children:count()){
+        Children[I,entity]:parentTo(Jaw)
+    }
+    
+    holoCreate(24,Bottom:toWorld(vec(0,0,0)),vec(0),Bottom:toWorld(ang(0,0,0)),vec(255),"cube")
+    local Children=Bottom:children()
+    rangerFilter(Children)
+    Bottom:parentTo(holoEntity(24))
+    holoPos(24,holoEntity(23):toWorld(vec(8,15,-55)))
+    holoAng(24,holoEntity(23):toWorld(ang(0,0,0)))
+    holoParent(24,holoEntity(23))
+    for(I=1,Children:count()){
+        Children[I,entity]:parentTo(Bottom)
+    }
+    
+    #Guns
+    holoCreate(25,Gun_Left:toWorld(vec(0,0,0)),vec(0),Gun_Left:toWorld(ang(0,0,0)),vec(255),"cube")
+    Gun_Left:parentTo(holoEntity(25))
+    holoPos(25,holoEntity(21):toWorld(vec(12,123,3)))
+    holoAng(25,holoEntity(21):toWorld(ang(0,0,0)))
+    holoParent(25,holoEntity(21))
+    
+    holoCreate(26,Gun_Right:toWorld(vec(0,0,0)),vec(0),Gun_Right:toWorld(ang(0,0,0)),vec(255),"cube")
+    Gun_Right:parentTo(holoEntity(26))
+    holoPos(26,holoEntity(21):toWorld(vec(12,-123,3)))
+    holoAng(26,holoEntity(21):toWorld(ang(0,0,0)))
+    holoParent(26,holoEntity(21))
+    
     rangerFilter(array(Foot_R,Foot_L,Thigh_R,Thigh_L,Leg_R,Leg_L,Knee_R,Knee_L,Base))
     
     timer("update",500)
@@ -328,9 +393,11 @@ if (first()) {
         if(ThirdPerson){
             CamPos=ThirdPersonPos
             CamDistance=ThirdPersonDistance
+            CamParent=Base
         }else{
             CamPos=FirstPersonPos
             CamDistance=FirstPersonDistance
+            CamParent=Seat
         }
     }
     
@@ -351,6 +418,12 @@ if (first()) {
 
         Fire = Seat:driver():keyAttack1()
         
+        Switch = Seat:driver():keyReload()
+        
+        AimButton = Seat:driver():keyAttack2()
+        
+        OpenButton = Seat:driver():keyPressed("f")
+        
         CamAng3=CamAng
         
     }else{
@@ -370,17 +443,138 @@ if (first()) {
         
     }
     
+    if(changed(Switch)&Switch){
+        WeaponMode=!WeaponMode
+    }
+    
+    if(WeaponMode==0){
+        Fire1=Fire
+    }else{
+        Fire2=Fire
+    }
+    
+    if(changed(OpenButton)&OpenButton){
+        Open=!Open
+    }
+    if(changed(Open)|Seat:driver()){
+        if(Open){
+            Cover:setAlpha(255)
+        }else{
+            Cover:setAlpha(10)
+        }
+    }
+    
+    if(changed(AimButton)&AimButton){
+        Aim=!Aim
+    }
+    
+    if(Open){
+        if(OpenVal<100){
+            OpenVal+=100/12
+        }elseif(OpenVal>100){
+            OpenVal=100
+        }
+    }else{
+        if(OpenVal>0){
+            OpenVal-=100/12
+        }elseif(OpenVal<0){
+            OpenVal=0
+        }
+    }
+    
     if(Active){
         if(changed(Crouch)&Crouch){
             Duck=!Duck
         }
     }else{
         Duck=Crouch2
+        Open=Open2
+        Aim=0
     }
     
     if(!Editmode){
     #holoPos(4,holoEntity(3):toWorld(Leg_Pos_Offset+vec(0,0,+0.3-(1*clamp((-1.2+((Foot_R:pos()*vec(1,1,0)):distance(Base:pos()*vec(1,1,0))*0.3))*0.1,-1,1)))))
     #holoPos(5,holoEntity(3):toWorld((Leg_Pos_Offset*vec(1,-1,1))+vec(0,0,+0.3-(1*clamp((-1.2+((Foot_L:pos()*vec(1,1,0)):distance(Base:pos()*vec(1,1,0))*0.3))*0.1,-1,1)))))
+    
+    #Open
+    HeadAng = -45*(OpenVal/100)
+    TopAng = 25*(OpenVal/100)
+    JawAng = 55*(OpenVal/100)
+    BottomAng = -5*(OpenVal/100)
+    
+    #Head
+    
+    local Forward = ((CamParent:pos()+CamAng3:forward()*100)-CamParent:pos()):toAngle():forward()
+    local Bearing = holoEntity(20):bearing(Base:pos() + vec(0, 0, CamPos:z()) + (Forward * 9999))
+    local Elevation = holoEntity(20):elevation(Base:pos() + (Forward * 9999))
+    Moving = (abs(Bearing + Elevation) > 0.1)
+    if(changed(Moving)){
+        if(!Moving){
+            Gun_Speed_Mod = 0
+        }
+    }
+    Gun_Speed_Mod += 0.1 * (Moving - Gun_Speed_Mod)
+    
+    Yaw += clamp(-Bearing, -Gun_Speed_Mod * 5, Gun_Speed_Mod * 5)
+    if(90 < 180){
+        Yaw = clamp(Yaw*Aim, -90, 90)
+    }
+    
+    
+    Pitch += clamp(-Elevation, -Gun_Speed_Mod * 5, Gun_Speed_Mod * 5)
+    Pitch = clamp(Pitch*Aim, -35, 28)
+    
+    holoAng(20,Base:toWorld(ang(Pitch*Aim,Yaw*Aim,0)))
+    holoAng(21,holoEntity(20):toWorld(ang(-5+HeadAng,0,0)))
+    holoAng(22,holoEntity(21):toWorld(ang(TopAng,0,0)))
+    holoAng(23,holoEntity(21):toWorld(ang(JawAng,0,0)))
+    holoAng(24,holoEntity(23):toWorld(ang(BottomAng,0,0)))
+    
+    
+    #Gun angles
+    
+    local Forward_Left = ((CamParent:pos()+CamAng3:forward()*100)-CamParent:pos()):toAngle():forward()
+    local Bearing_Left = holoEntity(25):bearing(holoEntity(20):pos() + vec(0, 0, CamPos:z()) + (Forward_Left * 9999))
+    local Elevation_Left = holoEntity(25):elevation(holoEntity(20):pos() + (Forward_Left * 9999))
+    Moving_Left = (abs(Bearing_Left + Elevation_Left) > 0.1)
+    if(changed(Moving_Left)){
+        if(!Moving_Left){
+            Gun_Speed_Mod_Left = 0
+        }
+    }
+    Gun_Speed_Mod_Left += 0.11 * (Moving_Left - Gun_Speed_Mod_Left)
+    
+    Yaw_Left += clamp(-Bearing_Left, -Gun_Speed_Mod_Left * 7.5, Gun_Speed_Mod_Left * 7.5)
+    if(35 < 180){
+        Yaw_Left = clamp(Yaw_Left, -35, 35)
+    }
+    
+    
+    Pitch_Left += clamp(-Elevation_Left, -Gun_Speed_Mod_Left * 7.5, Gun_Speed_Mod_Left * 7.5)
+    Pitch_Left = clamp(Pitch_Left, -35, 35)
+    
+    local Forward_Right = ((CamParent:pos()+CamAng3:forward()*100)-CamParent:pos()):toAngle():forward()
+    local Bearing_Right = holoEntity(26):bearing(holoEntity(20):pos() + vec(0, 0, CamPos:z()) + (Forward_Right * 9999))
+    local Elevation_Right = holoEntity(26):elevation(holoEntity(20):pos() + (Forward_Right * 9999))
+    Moving_Right = (abs(Bearing_Right + Elevation_Right) > 0.1)
+    if(changed(Moving_Right)){
+        if(!Moving_Right){
+            Gun_Speed_Mod_Right = 0
+        }
+    }
+    Gun_Speed_Mod_Right += 0.11 * (Moving_Right - Gun_Speed_Mod_Right)
+    
+    Yaw_Right += clamp(-Bearing_Right, -Gun_Speed_Mod_Right * 7.5, Gun_Speed_Mod_Right * 7.5)
+    if(35 < 180){
+        Yaw_Right = clamp(Yaw_Right, -35, 35)
+    }
+    
+    
+    Pitch_Right += clamp(-Elevation_Right, -Gun_Speed_Mod_Right * 7.5, Gun_Speed_Mod_Right * 7.5)
+    Pitch_Right = clamp(Pitch_Right, -35, 35)
+    
+    holoAng(25,holoEntity(20):toWorld(ang(Pitch_Left,Yaw_Left,0)))
+    holoAng(26,holoEntity(20):toWorld(ang(Pitch_Right,Yaw_Right,0)))
     
     Dir = Base:vel()
     Mech_ang = Base:toWorld(ang(0,0,0))
@@ -402,7 +596,7 @@ if (first()) {
     
     StepZ_Mult = ((sin(Left_time*360)+sin(Right_time*360)))*(Step/100)*clamp((Dir*vec(1,1,0)):length()*0.004,0,1+(Sprint*0.2))
     
-    StepZ = -StepZ_Mult*0.25
+    StepZ = -StepZ_Mult*0.35
     
     Height_Adj = Mech_height*((0.95/(1+StepZ+clamp(Duck*0.3,0,1.1))))
     
@@ -504,16 +698,16 @@ if (first()) {
                 if (Left_state == 1) {
                     Left_state = 2
                 }
-                Left_extend = 75*(1.1-(clamp(-1+(sin(Left_time*180)*2.5),0,1)+clamp((sin(Right_time*180)),0,1)))
+                Left_extend = 80*(1-(clamp(-1+(sin(Left_time*180)*2.5),0,1)+clamp((sin(Right_time*180)),0,1)))
                 soundVolume("FL_move",0.75 - 0.75*Left_time)
                 soundPitch("FL_move",50 - 10*Left_time)
             }else{
-                Left_extend = 75
+                Left_extend = 80
             }
         }
     }
     elseif (Left_state) {
-        Left_extend = 75
+        Left_extend = 80
         if (Left_state == 2) {
             if (Left_ent) {
                 soundStop("FL_move")
@@ -547,16 +741,16 @@ if (first()) {
                 if (Right_state == 1) {
                     Right_state = 2
                 }
-                Right_extend = 75*(1.1-(clamp(-1+(sin(Right_time*180)*2.5),0,1)+clamp((sin(Left_time*180)*1),0,1)))
+                Right_extend = 80*(1-(clamp(-1+(sin(Right_time*180)*2.5),0,1)+clamp((sin(Left_time*180)),0,1)))
                 soundVolume("FR_move",0.75 - 0.75*Right_time)
                 soundPitch("FR_move",50 - 10*Right_time)
             }else{
-                Right_extend = 75
+                Right_extend = 80
             }
         }
     }
     elseif (Right_state) {
-        Right_extend = 75
+        Right_extend = 80
         if (Right_state == 2) {
             if (Right_ent) {
                 soundStop("FR_move")
@@ -588,9 +782,8 @@ if (first()) {
     }
     
     }
-    StepZ2 = (sin(StepZ*180))
-    Right_extend2 = ((clamp(Right_extend-(35*(StepZ2)),0,75))*0.7)*!Duck
-    Left_extend2 = ((clamp(Left_extend-(35*(StepZ2)),0,75))*0.7)*!Duck
+    Right_extend2 = ((clamp(Right_extend,0,75))*0.7)*!Duck
+    Left_extend2 = ((clamp(Left_extend,0,75))*0.7)*!Duck
     
     holoPos(12,holoEntity(8):toWorld(vec(0,0,LengthC+(Right_extend2))))
     holoPos(13,holoEntity(11):toWorld(vec(0,0,LengthC+(Left_extend2))))
