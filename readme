@@ -4,4 +4,22 @@ Some information, Green cube is jaw bone, Blue is top of the head, cube below th
 
 The cubes at the back top are for the missiles
 
+Controls:
+
+WASD to move
+Shift to run
+Control toggles crouch/duck
+
+F opens/closes mouth
+Mouse2 toggles aim mode
+
+Mouse1 to fire weapon
+R switches weapon
+
+For the miniguns you just hold the fire button,
+for the missiles you hold the fire button to place targets where you aim, release to fire, 8 locks/missiles at once is max
+
+Requires SProps and Wiremod
+and some expression 2 extensions
+
 That's all
