@@ -1,8 +1,8 @@
 @name Rex AI
 @inputs Base:entity
-@outputs W S Shift EyeAngles:angle Crouch
+@outputs W S Shift EyeAngles:angle Crouch Open
 @persist RefreshRate Move TargetPos:vector Follow Here UseAimPos TargetOverwrite:vector Crouch Run
-@persist StopDistance WalkDistance AimRadius AimRange TooClose CamControllerMode Mouse2Aim CanJump Distance
+@persist Open TargetPLY:entity StopDistance WalkDistance AimRadius AimRange TooClose CamControllerMode Mouse2Aim CanJump Distance
 @trigger none
 runOnChat(1)
 runOnKeys(owner(),1)
@@ -10,6 +10,8 @@ if(first()){
     
     hint("Type .help to get started!",5)
     hint("AI E2 By Naki!",5)
+    
+    TargetPLY = owner()
     
     StopDistance=750
     TooClose=350
@@ -40,11 +42,24 @@ if(chatClk(owner())){
         Follow=1
         UseAimPos=0
     }
+    if(LS[1,string]==".open"){
+        hint("Cockpit Open.",4)
+        Open=1
+    }
+    if(LS[1,string]==".close"){
+        hint("Cockpit Closed.",4)
+        Open=0
+    }
     if(LS[1,string]==".stay"){
         UseAimPos=0
         Follow=0
         Here=0
         hint("Staying at current location",4)
+    }
+    if(LS[1,string]==".faceme"){
+        TargetOverwrite=TargetPLY:pos()+vec(0,0,TargetPLY:height()/2)
+        EyeAngles=(TargetOverwrite-Base:pos()):toAngle()
+        hint("Facing at your direction.",4)
     }
     if(LS[1,string]==".crouch"){
         if(!Crouch){
@@ -139,15 +154,17 @@ if(Distance>WalkDistance+StopDistance){
 }else{
     Shift=0
 }
-if(UseAimPos|Follow|Here){
+if(UseAimPos==1|Follow==1|Here==1){
     if(!Follow){
-        if(changed(owner():keyAttack1())&owner():keyAttack1()){
-            Here=1
-            hint("Moving to location",4)
-            TargetOverwrite=owner():aimPos()+vec(0,0,owner():height()/2)
+        if(UseAimPos){
+            if(changed(owner():keyAttack1())&owner():keyAttack1()){
+                Here=1
+                hint("Moving to location",4)
+                TargetOverwrite=owner():aimPos()+vec(0,0,owner():height()/2)
+            }
         }
     }elseif(!Here){
-        TargetOverwrite=owner():pos()+vec(0,0,owner():height()/2)
+        TargetOverwrite=TargetPLY:pos()+vec(0,0,TargetPLY:height()/2)
     }
     #Acts like cam controller camAng()
     if((TargetOverwrite-Base:pos()):toAngle():pitch()<180.1){
